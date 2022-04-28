@@ -1,27 +1,52 @@
+from datetime import date, datetime
 import email
+import re
+from textwrap import indent
 from urllib import request
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, session
+import datetime
 
 # FlASK
 #############################################################
 app = Flask(__name__)
+app.permanent_session_lifetime = datetime.timedelta(days=365)
+app.secret_key = "Super secret key"
 #############################################################
 
 @app.route('/')
 def home():
-    return render_template('index.html')
+    email = None
+    if "email" in session:
+        email = session["email"]
+        return render_template('index.html', data = email)
+    else : 
+        return render_template('Login.html', data = email)
+
+
+@app.route("/singUp")
+def singup():
+    name = request.form["name"]
+    email = request.form["email"]
+    password = request.form["password"]
+    return render_template("")
 
 
 @app.route("/login", methods = ["GET", "POST"])
 def login():
-    return render_template("Login.html", error = email)
+    email = None
+    password = None
+    if email in session:
+        return render_template("index.html", data= session["email"])
+    else: 
+        if (request.method == "GET"):
+            return render_template("Login.html", data = "email")
+        else:
+            email = request.form["email"]
+            password = request.form["password"]
+            session["email"] = email
+            return render_template("index.html", data = email)
 
 
-@app.route("/loginuser", methods = ["POST"])
-def loginuser():
-    email = request.form["email"]
-    password = request.form["password"]
-    return render_template("index.html", error = email)
 
 @app.route('/prueba', methods=["GET"])
 def prueba():
